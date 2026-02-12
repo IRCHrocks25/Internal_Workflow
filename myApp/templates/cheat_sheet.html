@@ -1,0 +1,1340 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Business OS — Sales Cheat Sheet{% endblock %}
+
+{% block navigation %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_head %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  :root{
+    --bg: #f6f7fb;
+    --panel: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --border: rgba(15, 23, 42, 0.10);
+    --border-2: rgba(15, 23, 42, 0.08);
+    --shadow: 0 1px 0 rgba(15, 23, 42, 0.06);
+    --shadow-lg: 0 10px 30px rgba(15, 23, 42, 0.10);
+    --accent: #0ea5e9;        /* calm sky */
+    --focus: rgba(14,165,233,0.20);
+
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --radius-sm: 10px;
+
+    --pad: 28px;
+  }
+
+  * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); min-height: 100vh; color: var(--text); }
+
+  /* Container */
+   .cheat-sheet-container{
+     max-width: 1200px;
+     margin: 0 auto;
+     padding: 28px;
+     position: relative;
+   }
+
+   /* Side Navigation */
+   .side-nav{
+     position: fixed;
+     left: 20px;
+     top: 50%;
+     transform: translateY(-50%);
+     z-index: 100;
+     background: var(--panel);
+     border: 1px solid var(--border);
+     border-radius: var(--radius-lg);
+     padding: 16px 12px;
+     box-shadow: var(--shadow-lg);
+     max-width: 240px;
+     max-height: 80vh;
+     overflow-y: auto;
+     transition: opacity 200ms ease, transform 200ms ease;
+   }
+
+   .side-nav.hidden{
+     opacity: 0;
+     pointer-events: none;
+     transform: translateY(-50%) translateX(-20px);
+   }
+
+   .side-nav-title{
+     font-size: 0.75rem;
+     font-weight: 900;
+     color: var(--muted);
+     text-transform: uppercase;
+     letter-spacing: 0.1em;
+     margin-bottom: 12px;
+     padding: 0 8px;
+   }
+
+   .side-nav-item{
+     display: block;
+     padding: 10px 12px;
+     margin-bottom: 4px;
+     border-radius: var(--radius-sm);
+     color: rgba(15, 23, 42, 0.75);
+     font-size: 0.875rem;
+     font-weight: 500;
+     cursor: pointer;
+     transition: all 160ms ease;
+     text-decoration: none;
+     line-height: 1.4;
+   }
+
+   .side-nav-item:hover{
+     background: rgba(14,165,233,0.08);
+     color: var(--accent);
+     transform: translateX(4px);
+   }
+
+   .side-nav-item.active{
+     background: rgba(14,165,233,0.12);
+     color: var(--accent);
+     font-weight: 700;
+     border-left: 3px solid var(--accent);
+     padding-left: 9px;
+   }
+
+   .side-nav-item-number{
+     display: inline-block;
+     width: 20px;
+     font-weight: 700;
+     color: var(--muted);
+     margin-right: 6px;
+   }
+
+   .side-nav-item.active .side-nav-item-number{
+     color: var(--accent);
+   }
+
+   .side-nav-item-text{
+     transition: opacity 160ms ease;
+   }
+
+   @media (max-width: 1400px){
+     .side-nav{
+       display: none;
+     }
+   }
+
+   @media print{
+     .side-nav{
+       display: none;
+     }
+   }
+
+  /* Header */
+  .header{
+    background: transparent;
+  }
+
+  .header h1{
+    background: none;
+    -webkit-background-clip: initial;
+    -webkit-text-fill-color: initial;
+    color: var(--text);
+    font-weight: 800;
+    letter-spacing: -0.6px;
+  }
+
+  .header p{ color: var(--muted); }
+
+  /* Search */
+  #searchInput{
+    border: 1px solid var(--border);
+    background: var(--panel);
+    box-shadow: var(--shadow);
+  }
+  #searchInput:focus{
+    box-shadow: 0 0 0 3px var(--focus);
+    border-color: rgba(14,165,233,0.35);
+  }
+
+  /* Buttons (calm, minimal) */
+  button{
+    transition: background 160ms ease, box-shadow 160ms ease, transform 160ms ease, border-color 160ms ease;
+  }
+  button:hover{ transform: translateY(-1px); }
+  button:active{ transform: translateY(0); }
+
+  /* Tab Navigation — minimal underline tabs */
+  .tab-navigation{
+    display: flex;
+    gap: 18px;
+    margin-bottom: 22px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
+  .tab-button{
+    padding: 10px 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--muted);
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .tab-button:hover{
+    color: var(--text);
+    background: transparent;
+  }
+
+  .tab-button.active{
+    color: var(--text);
+    background: transparent;
+    box-shadow: none;
+    transform: none;
+  }
+
+  .tab-button.active::after{
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    height: 2px;
+    width: 100%;
+    background: var(--accent);
+    border-radius: 999px;
+  }
+
+  /* Tab Content */
+  .tab-content{
+    display: none;
+    animation: fadeIn 220ms ease;
+  }
+  .tab-content.active{ display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Workflow Cards — editorial panel with left rail */
+  .workflow-card{
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    margin-bottom: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  .workflow-card:hover{
+    border-color: rgba(14,165,233,0.25);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+    transform: none;
+  }
+
+  .workflow-card-header{
+    padding: 18px 18px 18px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-2);
+    background: #fff;
+  }
+
+  /* Left rail */
+  .workflow-card-header .flex.items-center{
+    gap: 12px !important;
+  }
+
+  .workflow-card-header i{
+    font-size: 1.15rem;
+    filter: none;
+  }
+
+  .workflow-card-header .font-medium{
+    font-weight: 800;
+    color: var(--text);
+    font-size: 1.02rem;
+    letter-spacing: -0.2px;
+  }
+
+  /* A subtle rail block behind the icon */
+  .workflow-card-header .flex.items-center i{
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.04);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+  }
+
+  .workflow-card-body{
+    padding: 18px 22px 22px;
+    line-height: 1.7;
+    background: #fff;
+  }
+
+  .workflow-description p{
+    margin-bottom: 10px;
+    color: rgba(15, 23, 42, 0.82);
+    font-size: 0.95rem;
+    letter-spacing: 0.005em;
+  }
+
+  .divider{
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(15, 23, 42, 0.10), transparent);
+    margin: 18px 0;
+  }
+
+  .sales-points-label{
+    font-weight: 800;
+    margin-bottom: 12px;
+    color: var(--text);
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* Sales points — calm callouts */
+  .quote-bullet{
+    margin-left: 0;
+    margin-bottom: 10px;
+    padding: 12px 14px;
+    border-left: 3px solid rgba(14,165,233,0.55);
+    background: rgba(14,165,233,0.06);
+    color: rgba(15, 23, 42, 0.92);
+    border-radius: 0 12px 12px 0;
+    transition: background 160ms ease, transform 160ms ease;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .quote-bullet:hover{
+    background: rgba(14,165,233,0.09);
+    transform: translateX(3px);
+  }
+
+  /* Collapsible sections (used in sales pitch partials) */
+  .collapsible-section{
+    border-top: 1px solid var(--border-2);
+  }
+
+  .collapsible-header{
+    padding: 14px 18px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    transition: background 160ms ease;
+  }
+
+  .collapsible-header:hover{
+    background: rgba(15, 23, 42, 0.02);
+  }
+
+  .collapsible-content{
+    padding: 16px 22px 20px;
+    line-height: 1.7;
+    background: #fff;
+  }
+
+  .feature-item{
+    margin-bottom: 12px;
+    padding: 12px 14px;
+    background: rgba(15, 23, 42, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    transition: background 160ms ease, border-color 160ms ease;
+  }
+
+  .feature-item:hover{
+    background: rgba(15, 23, 42, 0.04);
+    border-color: rgba(14,165,233,0.22);
+    transform: none;
+  }
+
+  .feature-label{
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 4px;
+    font-size: 0.95rem;
+  }
+
+  .feature-description{
+    color: rgba(15, 23, 42, 0.70);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  /* Pitch points (used in sales pitch partials) */
+  .pitch-point{
+    margin-bottom: 12px;
+    padding: 12px 14px;
+    border-left: 3px solid rgba(14,165,233,0.55);
+    background: rgba(14,165,233,0.06);
+    color: rgba(15, 23, 42, 0.92);
+    border-radius: 0 12px 12px 0;
+    transition: background 160ms ease, transform 160ms ease;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    box-shadow: none;
+  }
+
+  .pitch-point:hover{
+    background: rgba(14,165,233,0.09);
+    transform: translateX(3px);
+    box-shadow: none;
+  }
+
+  /* Sales Pitch styles (if partial uses these) */
+  .workflow-title{
+    font-size: 1.18rem;
+    font-weight: 900;
+    color: var(--text);
+    margin-bottom: 12px;
+    letter-spacing: -0.2px;
+  }
+
+  .workflow-benefit{
+    background: rgba(14,165,233,0.06);
+    border: 1px solid rgba(14,165,233,0.18);
+    padding: 12px 14px;
+    margin-top: 12px;
+    border-radius: 14px;
+    box-shadow: none;
+  }
+
+  .workflow-benefit-label{
+    font-weight: 900;
+    color: var(--accent);
+    margin-bottom: 6px;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+  }
+
+  .workflow-benefit-text{
+    color: rgba(15, 23, 42, 0.92);
+    font-size: 0.98rem;
+    font-weight: 600;
+    line-height: 1.6;
+  }
+
+  .hidden{ display: none; }
+
+  /* Focus Mode */
+  .focus-mode .workflow-card:not(.expanded){ display: none; }
+  .focus-mode .workflow-card.expanded{ max-width: 100%; }
+  .focus-mode .workflow-card-body{ font-size: 1.05em; }
+
+  /* Icons */
+  .accordion-icon{
+    transition: transform 200ms ease;
+  }
+  .collapsible-header.active .accordion-icon{
+    transform: rotate(180deg);
+  }
+
+  /* Accessibility */
+  *:focus { outline: none; }
+  button:focus-visible,
+  input:focus-visible{
+    outline: 2px solid rgba(14,165,233,0.85);
+    outline-offset: 2px;
+  }
+
+  @media print{
+    .header-actions, .tab-navigation{ display: none; }
+    .workflow-card{ page-break-inside: avoid; box-shadow: none; }
+    .workflow-card-body, .collapsible-content{ display: block !important; }
+    .workflow-card-header, .collapsible-header{ cursor: default; }
+    body{ background: #fff; }
+  }
+
+  .search-highlight{
+    background-color: #fde68a;
+    padding: 2px 4px;
+    border-radius: 4px;
+  }
+</style>
+{% endblock %}
+
+{% block content_wrapper %}
+<div class="cheat-sheet-container">
+
+  <!-- Side Navigation -->
+  <nav class="side-nav" id="sideNav">
+    <div class="side-nav-title">Workflows</div>
+    <a href="#workflow-1" class="side-nav-item" data-workflow="1" data-cheat-label="AI Email Guard" data-pitch-label="AI Email Monitoring">
+      <span class="side-nav-item-number">1</span><span class="side-nav-item-text">AI Email Guard</span>
+    </a>
+    <a href="#workflow-2" class="side-nav-item" data-workflow="2" data-cheat-label="Idea-to-Post" data-pitch-label="Idea → Content Engine">
+      <span class="side-nav-item-number">2</span><span class="side-nav-item-text">Idea-to-Post</span>
+    </a>
+    <a href="#workflow-2a" class="side-nav-item" data-workflow="2a" data-cheat-label="Social Media" data-pitch-label="Social Media">
+      <span class="side-nav-item-number">2A</span><span class="side-nav-item-text">Social Media</span>
+    </a>
+    <a href="#workflow-2b" class="side-nav-item" data-workflow="2b" data-cheat-label="Automated Ads" data-pitch-label="Automated Ads">
+      <span class="side-nav-item-number">2B</span><span class="side-nav-item-text">Automated Ads</span>
+    </a>
+    <a href="#workflow-3" class="side-nav-item" data-workflow="3" data-cheat-label="Lead Capture" data-pitch-label="Lead Intake & CRM">
+      <span class="side-nav-item-number">3</span><span class="side-nav-item-text">Lead Capture</span>
+    </a>
+    <a href="#workflow-3a" class="side-nav-item" data-workflow="3a" data-cheat-label="Voice AI" data-pitch-label="Voice AI">
+      <span class="side-nav-item-number">3A</span><span class="side-nav-item-text">Voice AI</span>
+    </a>
+    <a href="#workflow-3b" class="side-nav-item" data-workflow="3b" data-cheat-label="Chatbot" data-pitch-label="Chatbot">
+      <span class="side-nav-item-number">3B</span><span class="side-nav-item-text">Chatbot</span>
+    </a>
+    <a href="#workflow-4" class="side-nav-item" data-workflow="4" data-cheat-label="Sales Prep" data-pitch-label="Call Preparation">
+      <span class="side-nav-item-number">4</span><span class="side-nav-item-text">Sales Prep</span>
+    </a>
+    <a href="#workflow-5" class="side-nav-item" data-workflow="5" data-cheat-label="Follow-Up" data-pitch-label="Post-Call Recap">
+      <span class="side-nav-item-number">5</span><span class="side-nav-item-text">Follow-Up</span>
+    </a>
+  </nav>
+
+  <!-- Header -->
+  <div class="header mb-8 flex justify-between items-center">
+    <div>
+      <h1 class="text-3xl font-bold mb-2">AI Business OS</h1>
+      <p class="text-sm font-medium">Sales Intelligence Platform</p>
+    </div>
+
+    <div class="header-actions flex items-center space-x-3">
+      <div class="relative">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search workflows..."
+          class="pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none bg-white transition-all w-64"
+        >
+        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+      </div>
+
+      <button
+        onclick="copyAll()"
+        class="px-5 py-2.5 bg-white text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 transition-all border border-gray-200"
+        id="copyAllBtn"
+      >
+        <i class="fas fa-copy mr-2"></i>Copy All
+      </button>
+
+      <button
+        onclick="window.print()"
+        class="px-5 py-2.5 bg-white text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 transition-all border border-gray-200"
+      >
+        <i class="fas fa-print mr-2"></i>Print
+      </button>
+
+      <button
+        onclick="toggleFocusMode()"
+        class="px-5 py-2.5 bg-sky-600 text-white rounded-xl text-sm font-medium hover:bg-sky-700 transition-all shadow-sm"
+        id="focusModeBtn"
+        style="background: var(--accent);"
+      >
+        <i class="fas fa-compress-arrows-alt mr-2"></i>Focus Mode
+      </button>
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="tab-navigation">
+    <button class="tab-button active" onclick="switchTab('cheat-sheet')">
+      <i class="fas fa-clipboard-list"></i>Cheat Sheet
+    </button>
+    <button class="tab-button" onclick="switchTab('sales-pitch')">
+      <i class="fas fa-bullhorn"></i>Sales Pitch v2
+    </button>
+  </div>
+
+  <!-- Cheat Sheet Tab Content -->
+  <div id="cheat-sheet" class="tab-content active">
+    <div id="workflowContainer">
+
+      <!-- Workflow 1 -->
+      <div class="workflow-card expanded" id="workflow-1">
+        <div class="workflow-card-header" onclick="toggleCard(1)">
+          <div class="flex items-center space-x-3">
+            <i class="fas fa-envelope text-blue-600"></i>
+            <span class="font-medium text-gray-800">Workflow 1 – AI Email Guard & Response Drafter</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button
+              onclick="event.stopPropagation(); copyWorkflow(1)"
+              class="px-4 py-1.5 text-xs font-medium bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-all border border-gray-200"
+            >
+              <i class="fas fa-copy mr-1.5"></i>Copy
+            </button>
+            <i class="fas fa-chevron-up text-gray-400 accordion-icon" id="icon-1"></i>
+          </div>
+        </div>
+        <div class="workflow-card-body" id="body-1">
+          <div class="workflow-description">
+            <p>Monitors incoming Gmail/Outlook emails and auto-classifies by priority.</p>
+            <p>Drafts professional replies in the user's brand voice and saves them as drafts.</p>
+            <p>Reduces inbox overload and decision fatigue while keeping the user in full control.</p>
+            <p>Centralizes email handling so nothing important slips through the cracks.</p>
+          </div>
+          <div class="divider"></div>
+          <div class="sales-points">
+            <div class="sales-points-label">Sales points (easy to pitch):</div>
+            <div class="quote-bullet">"Reclaims 1–2 hours per day from the inbox without losing control of messaging."</div>
+            <div class="quote-bullet">"Gives every user a personal email assistant that never gets tired or distracted."</div>
+            <div class="quote-bullet">"Ensures faster, more consistent replies, which means happier clients and more closed deals."</div>
+            <div class="quote-bullet">"Protects focus time so salespeople can sell instead of living in their inbox."</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Workflow 2 -->
+      <div class="workflow-card" id="workflow-2">
+        <div class="workflow-card-header" onclick="toggleCard(2)">
+          <div class="flex items-center space-x-3">
+            <i class="fas fa-pen-nib text-purple-600"></i>
+            <span class="font-medium text-gray-800">Workflow 2 – "Idea-to-Post" Content Engine</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button
+              onclick="event.stopPropagation(); copyWorkflow(2)"
+              class="px-4 py-1.5 text-xs font-medium bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-all border border-gray-200"
+            >
+              <i class="fas fa-copy mr-1"></i>Copy
+            </button>
+            <i class="fas fa-chevron-down text-gray-400 accordion-icon" id="icon-2"></i>
+          </div>
+        </div>
+        <div class="workflow-card-body hidden" id="body-2">
+          <div class="workflow-description">
+            <p>Turns a raw idea (voice note or text) into a full set of social posts.</p>
+            <p>Auto-creates platform-specific content for Instagram, Facebook, LinkedIn, etc.</p>
+            <p>Handles formatting, variations, and scheduling in advance.</p>
+            <p>Keeps the brand consistently visible without daily manual content work.</p>
+          </div>
+          <div class="divider"></div>
+          <div class="sales-points">
+            <div class="sales-points-label">Sales points (easy to pitch):</div>
+            <div class="quote-bullet">"Eliminates content paralysis—one idea becomes a week of posts in minutes."</div>
+            <div class="quote-bullet">"Gives clients always-on visibility without needing a full-time content team."</div>
+            <div class="quote-bullet">"Helps them look bigger and more professional online than their competitors."</div>
+            <div class="quote-bullet">"Perfect for busy founders who hate social but still need to be everywhere."</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Workflow 3 -->
+      <div class="workflow-card" id="workflow-3">
+        <div class="workflow-card-header" onclick="toggleCard(3)">
+          <div class="flex items-center space-x-3">
+            <i class="fas fa-user-plus text-green-600"></i>
+            <span class="font-medium text-gray-800">Workflow 3 – 24/7 Lead Capture & Qualification</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button
+              onclick="event.stopPropagation(); copyWorkflow(3)"
+              class="px-4 py-1.5 text-xs font-medium bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-all border border-gray-200"
+            >
+              <i class="fas fa-copy mr-1"></i>Copy
+            </button>
+            <i class="fas fa-chevron-down text-gray-400 accordion-icon" id="icon-3"></i>
+          </div>
+        </div>
+        <div class="workflow-card-body hidden" id="body-3">
+          <div class="workflow-description">
+            <p>Captures leads instantly from chatbots, voice AI, or web forms around the clock.</p>
+            <p>Uses AI to score and qualify leads based on fit and intent.</p>
+            <p>Auto-updates the CRM pipeline with status, tags, and next steps.</p>
+            <p>Triggers immediate email/SMS follow-up so leads don't go cold.</p>
+          </div>
+          <div class="divider"></div>
+          <div class="sales-points">
+            <div class="sales-points-label">Sales points (easy to pitch):</div>
+            <div class="quote-bullet">"Makes sure they never lose another lead just because it came in after hours."</div>
+            <div class="quote-bullet">"Automatically separates hot leads from tire-kickers so sales focuses on the right people."</div>
+            <div class="quote-bullet">"Increases speed-to-lead, which is proven to boost conversion rates."</div>
+            <div class="quote-bullet">"Turns the website into a 24/7 sales rep that never sleeps or forgets to follow up."</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Workflow 4 -->
+      <div class="workflow-card" id="workflow-4">
+        <div class="workflow-card-header" onclick="toggleCard(4)">
+          <div class="flex items-center space-x-3">
+            <i class="fas fa-clipboard-list text-orange-600"></i>
+            <span class="font-medium text-gray-800">Workflow 4 – Intelligent Sales Prep</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button
+              onclick="event.stopPropagation(); copyWorkflow(4)"
+              class="px-4 py-1.5 text-xs font-medium bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-all border border-gray-200"
+            >
+              <i class="fas fa-copy mr-1"></i>Copy
+            </button>
+            <i class="fas fa-chevron-down text-gray-400 accordion-icon" id="icon-4"></i>
+          </div>
+        </div>
+        <div class="workflow-card-body hidden" id="body-4">
+          <div class="workflow-description">
+            <p>Triggers as soon as a meeting is booked in the calendar.</p>
+            <p>Analyzes CRM data and past conversations about that contact or account.</p>
+            <p>Generates a pre-call brief with agenda, key points, and questions.</p>
+            <p>Includes AI-generated objection-handling scripts tailored to that prospect.</p>
+          </div>
+          <div class="divider"></div>
+          <div class="sales-points">
+            <div class="sales-points-label">Sales points (easy to pitch):</div>
+            <div class="quote-bullet">"Helps every rep walk into calls sounding prepared and professional, not reactive."</div>
+            <div class="quote-bullet">"Boosts close rates because reps know exactly what to say and what to avoid."</div>
+            <div class="quote-bullet">"Ideal for new or junior reps who need structure and talking points."</div>
+            <div class="quote-bullet">"Turns scattered CRM data into a one-page 'cheat sheet' before every call."</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Workflow 5 -->
+      <div class="workflow-card" id="workflow-5">
+        <div class="workflow-card-header" onclick="toggleCard(5)">
+          <div class="flex items-center space-x-3">
+            <i class="fas fa-handshake text-indigo-600"></i>
+            <span class="font-medium text-gray-800">Workflow 5 – The Perfect Follow-Up Protocol</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button
+              onclick="event.stopPropagation(); copyWorkflow(5)"
+              class="px-4 py-1.5 text-xs font-medium bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-all border border-gray-200"
+            >
+              <i class="fas fa-copy mr-1"></i>Copy
+            </button>
+            <i class="fas fa-chevron-down text-gray-400 accordion-icon" id="icon-5"></i>
+          </div>
+        </div>
+        <div class="workflow-card-body hidden" id="body-5">
+          <div class="workflow-description">
+            <p>Starts when a call ends (Zoom, phone, or VOIP).</p>
+            <p>Transcribes the conversation and extracts decisions, questions, and action items.</p>
+            <p>Auto-updates CRM notes, tasks, and deal stages with accurate information.</p>
+            <p>Drafts a personalized follow-up email summarizing next steps for the client.</p>
+          </div>
+          <div class="divider"></div>
+          <div class="sales-points">
+            <div class="sales-points-label">Sales points (easy to pitch):</div>
+            <div class="quote-bullet">"Makes sure no promise, detail, or next step is ever forgotten after a call."</div>
+            <div class="quote-bullet">"Delivers 'wow-level' follow-up that impresses clients and builds trust."</div>
+            <div class="quote-bullet">"Saves reps from late-night admin—notes and follow-ups are done automatically."</div>
+            <div class="quote-bullet">"Reduces deals falling through the cracks because everything is documented and actioned."</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Workflow 2A -->
+      <div class="workflow-card" id="workflow-2a">
+        <div class="workflow-card-header" onclick="toggleCard('2a')">
+          <div class="flex items-center space-x-3">
+            <i class="fas fa-bullhorn text-purple-600"></i>
+            <span class="font-medium text-gray-800">Workflow 2A – Automated Social Media (Maintenance)</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button
+              onclick="event.stopPropagation(); copyWorkflow('2a')"
+              class="px-4 py-1.5 text-xs font-medium bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-all border border-gray-200"
+            >
+              <i class="fas fa-copy mr-1"></i>Copy
+            </button>
+            <i class="fas fa-chevron-down text-gray-400 accordion-icon" id="icon-2a"></i>
+          </div>
+        </div>
+        <div class="workflow-card-body hidden" id="body-2a">
+          <div class="workflow-description">
+            <p>Voice-to-Post: Turns raw voice messages into polished content.</p>
+            <p>Cross-Platform Generation: Creates posts for Instagram, Facebook, and LinkedIn simultaneously.</p>
+            <p>Automated Scheduling: Handles the calendar and posting times automatically.</p>
+            <p>Brand Consistency: Maintains specific messaging and tone across all channels.</p>
+          </div>
+          <div class="divider"></div>
+          <div class="sales-points">
+            <div class="sales-points-label">Sales points (easy to pitch):</div>
+            <div class="quote-bullet">"This is your baseline insurance policy for visibility—you will never 'go dark' on social media again."</div>
+            <div class="quote-bullet">"Free yourself from the daily grind of logging in to post. The system handles the logistics so you can focus on your business."</div>
+            <div class="quote-bullet">"Expand your reach instantly. We take one piece of content and format it perfectly for every major platform."</div>
+            <div class="quote-bullet">"Your brand voice remains consistent 100% of the time, ensuring your audience always recognizes you."</div>
+            <div class="quote-bullet">"It's not just about posting; it's about freeing up your mental bandwidth for high-revenue activities."</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Workflow 2B -->
+      <div class="workflow-card" id="workflow-2b">
+        <div class="workflow-card-header" onclick="toggleCard('2b')">
+          <div class="flex items-center space-x-3">
+            <i class="fas fa-ad text-purple-600"></i>
+            <span class="font-medium text-gray-800">Workflow 2B – Automated Ads (Paid Media)</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button
+              onclick="event.stopPropagation(); copyWorkflow('2b')"
+              class="px-4 py-1.5 text-xs font-medium bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-all border border-gray-200"
+            >
+              <i class="fas fa-copy mr-1"></i>Copy
+            </button>
+            <i class="fas fa-chevron-down text-gray-400 accordion-icon" id="icon-2b"></i>
+          </div>
+        </div>
+        <div class="workflow-card-body hidden" id="body-2b">
+          <div class="workflow-description">
+            <p>Auto-Copywriting: Generates ad copy and headlines automatically.</p>
+            <p>Variation Testing: Creates multiple variations to test what works best.</p>
+            <p>Data Optimization: Refines messaging based on performance data.</p>
+            <p>Multi-Platform Support: Supports Meta (Facebook/Instagram) and Google ad platforms.</p>
+          </div>
+          <div class="divider"></div>
+          <div class="sales-points">
+            <div class="sales-points-label">Sales points (easy to pitch):</div>
+            <div class="quote-bullet">"Stop burning budget on bad ads. The AI creates multiple variations to find the winner faster than a human could."</div>
+            <div class="quote-bullet">"You don't need to hire an expensive agency to run effective ads. This system handles the creative heavy lifting."</div>
+            <div class="quote-bullet">"Launch campaigns in minutes, not days. From offer input to deployment, the process is streamlined."</div>
+            <div class="quote-bullet">"The system learns what works. It uses performance data to continuously optimize your messaging."</div>
+            <div class="quote-bullet">"Scale your revenue by automating the hardest part of paid ads: writing copy that actually converts."</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Workflow 3A -->
+      <div class="workflow-card" id="workflow-3a">
+        <div class="workflow-card-header" onclick="toggleCard('3a')">
+          <div class="flex items-center space-x-3">
+            <i class="fas fa-phone text-green-600"></i>
+            <span class="font-medium text-gray-800">Workflow 3A – Automated Voice AI</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button
+              onclick="event.stopPropagation(); copyWorkflow('3a')"
+              class="px-4 py-1.5 text-xs font-medium bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-all border border-gray-200"
+            >
+              <i class="fas fa-copy mr-1"></i>Copy
+            </button>
+            <i class="fas fa-chevron-down text-gray-400 accordion-icon" id="icon-3a"></i>
+          </div>
+        </div>
+        <div class="workflow-card-body hidden" id="body-3a">
+          <div class="workflow-description">
+            <p>Natural Voice Assistant: Answers incoming calls with a human-sounding AI.</p>
+            <p>Intent Capture: Listens to the caller to understand their needs.</p>
+            <p>Auto-Qualification: Asks questions to qualify leads in real-time.</p>
+            <p>Smart Routing: Directs calls or triggers follow-ups based on the conversation.</p>
+          </div>
+          <div class="divider"></div>
+          <div class="sales-points">
+            <div class="sales-points-label">Sales points (easy to pitch):</div>
+            <div class="quote-bullet">"Your business is now open 24 hours a day. Whether a lead calls at 2 PM or 2 AM, they get a professional response."</div>
+            <div class="quote-bullet">"Never miss a customized opportunity just because you were on another line or in a meeting."</div>
+            <div class="quote-bullet">"Give your business a 'Fortune 500' feel with a professional AI receptionist that costs less than a phone bill."</div>
+            <div class="quote-bullet">"The AI filters the noise. It captures the details so you only have to call back the qualified leads."</div>
+            <div class="quote-bullet">"Capture revenue while you sleep. The AI can take orders, book appointments, or capture leads overnight."</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Workflow 3B -->
+      <div class="workflow-card" id="workflow-3b">
+        <div class="workflow-card-header" onclick="toggleCard('3b')">
+          <div class="flex items-center space-x-3">
+            <i class="fas fa-comments text-green-600"></i>
+            <span class="font-medium text-gray-800">Workflow 3B – Automated Chatbot</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button
+              onclick="event.stopPropagation(); copyWorkflow('3b')"
+              class="px-4 py-1.5 text-xs font-medium bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-all border border-gray-200"
+            >
+              <i class="fas fa-copy mr-1"></i>Copy
+            </button>
+            <i class="fas fa-chevron-down text-gray-400 accordion-icon" id="icon-3b"></i>
+          </div>
+        </div>
+        <div class="workflow-card-body hidden" id="body-3b">
+          <div class="workflow-description">
+            <p>Instant Replies: Responds immediately to common questions from visitors.</p>
+            <p>Conversational Qualification: Uses AI to qualify leads through natural conversation rather than static forms.</p>
+            <p>Action Execution: Capable of booking appointments or routing inquiries to specific team members.</p>
+            <p>Omni-Channel Support: Works across multiple platforms including your Website, Messenger, and WhatsApp.</p>
+            <p>24/7 Availability: Ensures no inquiry is missed regardless of the time of day.</p>
+          </div>
+          <div class="divider"></div>
+          <div class="sales-points">
+            <div class="sales-points-label">Sales points (easy to pitch):</div>
+            <div class="quote-bullet">"Capture revenue 24/7. Your website becomes a lead generation machine that never sleeps, capturing interest even when you are offline."</div>
+            <div class="quote-bullet">"Speed wins. By responding instantly to inquiries, you drastically increase the chance of converting a visitor into a client."</div>
+            <div class="quote-bullet">"Stop answering the same repetitive questions. The AI handles the FAQs so you can focus on complex sales conversations."</div>
+            <div class="quote-bullet">"Meet your customers where they are. Whether they message on Facebook, WhatsApp, or your site, they get an instant, professional reply."</div>
+            <div class="quote-bullet">"Turn traffic into appointments. The bot doesn't just chat; it qualifies visitors and books meetings directly on your calendar."</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Sales Pitch Tab Content -->
+  <div id="sales-pitch" class="tab-content">
+    <div id="salesPitchContainer">
+      {% include 'partials/sales_pitch_workflows.html' %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  let focusMode = false;
+  let expandedCard = 1;
+  let currentTab = 'cheat-sheet';
+
+   // Tab Switching Function
+   function switchTab(tabName) {
+     currentTab = tabName;
+
+     // Update tab buttons
+     document.querySelectorAll('.tab-button').forEach(btn => {
+       btn.classList.remove('active');
+     });
+     document.querySelectorAll('.tab-button').forEach(btn => {
+       if (btn.getAttribute('onclick').includes(tabName)) {
+         btn.classList.add('active');
+       }
+     });
+
+     // Update tab content
+     document.querySelectorAll('.tab-content').forEach(content => {
+       content.classList.remove('active');
+     });
+     document.getElementById(tabName).classList.add('active');
+
+     updateCopyAllButton();
+     
+     // Update side nav labels based on active tab
+     updateSideNavLabels(tabName);
+     
+     // Update side nav after tab switch
+     if (typeof updateActiveNav === 'function') {
+       setTimeout(updateActiveNav, 100);
+     }
+   }
+
+   // Update side navigation labels based on active tab
+   function updateSideNavLabels(activeTab) {
+     const navItems = document.querySelectorAll('.side-nav-item');
+     
+     navItems.forEach(item => {
+       const textSpan = item.querySelector('.side-nav-item-text');
+       if (!textSpan) return;
+       
+       if (activeTab === 'cheat-sheet') {
+         const cheatLabel = item.getAttribute('data-cheat-label');
+         if (cheatLabel) {
+           textSpan.textContent = cheatLabel;
+         }
+       } else if (activeTab === 'sales-pitch') {
+         const pitchLabel = item.getAttribute('data-pitch-label');
+         if (pitchLabel) {
+           textSpan.textContent = pitchLabel;
+         }
+       }
+     });
+   }
+
+  function updateCopyAllButton() {
+    const btn = document.getElementById('copyAllBtn');
+    if (!btn) return;
+    btn.innerHTML = '<i class="fas fa-copy mr-1"></i>Copy All';
+  }
+
+  // Toggle section for sales pitch
+  function toggleSection(sectionId) {
+    const content = document.getElementById(sectionId);
+    const icon = document.getElementById('icon-' + sectionId);
+    const header = content ? content.previousElementSibling : null;
+
+    if (!content || !icon) return;
+
+    if (header && header.classList.contains('collapsible-header')) {
+      header.classList.toggle('active');
+    }
+
+    if (content.classList.contains('hidden')) {
+      content.classList.remove('hidden');
+      icon.style.transform = 'rotate(180deg)';
+    } else {
+      content.classList.add('hidden');
+      icon.style.transform = 'rotate(0deg)';
+    }
+  }
+
+  function toggleCard(workflowNum) {
+    const body = document.getElementById('body-' + workflowNum);
+    const icon = document.getElementById('icon-' + workflowNum);
+    const card = document.getElementById('workflow-' + workflowNum);
+
+    if (!body || !icon || !card) return;
+
+    if (body.classList.contains('hidden')) {
+      body.classList.remove('hidden');
+      icon.style.transform = 'rotate(180deg)';
+      card.classList.add('expanded');
+      expandedCard = workflowNum;
+    } else {
+      body.classList.add('hidden');
+      icon.style.transform = 'rotate(0deg)';
+      card.classList.remove('expanded');
+    }
+  }
+
+  function copyWorkflow(workflowNum) {
+    const card = document.getElementById('workflow-' + workflowNum);
+    if (!card) return;
+
+    const header = card.querySelector('.workflow-card-header')?.innerText.replace('Copy', '').trim() || '';
+    const body = card.querySelector('.workflow-card-body');
+
+    let text = header + '\n\n';
+
+    const description = body?.querySelector('.workflow-description');
+    if (description) {
+      const paragraphs = description.querySelectorAll('p');
+      paragraphs.forEach(p => { text += p.innerText + '\n'; });
+    }
+
+    text += '\nSales points (easy to pitch):\n';
+
+    const quotes = body?.querySelectorAll('.quote-bullet') || [];
+    quotes.forEach(quote => { text += quote.innerText + '\n'; });
+
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = event.target.closest('button');
+      if (!btn) return;
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-check mr-1"></i>Copied';
+      btn.classList.add('bg-green-100', 'text-green-700');
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.classList.remove('bg-green-100', 'text-green-700');
+      }, 2000);
+    });
+  }
+
+  function copyAll() {
+    let allText = '';
+
+    if (currentTab === 'cheat-sheet') {
+      allText = 'AI Business OS — Sales Cheat Sheet\n\n';
+
+      const workflowIds = ['1', '2', '3', '4', '5', '2a', '2b', '3a', '3b'];
+
+      workflowIds.forEach(workflowId => {
+        const card = document.getElementById('workflow-' + workflowId);
+        if (!card) return;
+
+        const header = card.querySelector('.workflow-card-header')?.innerText.replace('Copy', '').trim() || '';
+        const body = card.querySelector('.workflow-card-body');
+
+        allText += header + '\n\n';
+
+        const description = body?.querySelector('.workflow-description');
+        if (description) {
+          const paragraphs = description.querySelectorAll('p');
+          paragraphs.forEach(p => { allText += p.innerText + '\n'; });
+        }
+
+        allText += '\nSales points (easy to pitch):\n';
+
+        const quotes = body?.querySelectorAll('.quote-bullet') || [];
+        quotes.forEach(quote => { allText += quote.innerText + '\n'; });
+
+        allText += '\n\n---\n\n';
+      });
+
+    } else {
+      allText = 'AI Business OS Sales Pitch v2\n\n';
+
+      const workflowIds = ['1', '2', '2a', '2b', '3', '3a', '3b', '4', '5'];
+
+      workflowIds.forEach(workflowId => {
+        const card = document.getElementById('pitch-workflow-' + workflowId)
+          || document.querySelector(`#sales-pitch [id*="workflow-${workflowId}"]`);
+        if (!card) return;
+
+        const title = card.querySelector('.workflow-title')?.innerText || '';
+        const benefit = card.querySelector('.workflow-benefit-text')?.innerText || '';
+
+        allText += title + '\n';
+        allText += 'Benefit: ' + benefit + '\n\n';
+
+        const featuresSection = card.querySelector('[id^="pitch-features-"]');
+        if (featuresSection) {
+          allText += 'Features:\n';
+          const features = featuresSection.querySelectorAll('.feature-item');
+          features.forEach(feature => {
+            const label = feature.querySelector('.feature-label')?.innerText || '';
+            const desc = feature.querySelector('.feature-description')?.innerText || '';
+            allText += label + ' ' + desc + '\n';
+          });
+          allText += '\n';
+        }
+
+        const pitchSection = card.querySelector('[id^="pitch-sales-"]');
+        if (pitchSection) {
+          allText += 'Sales Pitch Points:\n';
+          const points = pitchSection.querySelectorAll('.pitch-point');
+          points.forEach(point => { allText += point.innerText + '\n'; });
+        }
+
+        allText += '\n\n---\n\n';
+      });
+    }
+
+    navigator.clipboard.writeText(allText).then(() => {
+      const btn = document.getElementById('copyAllBtn');
+      if (!btn) return;
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-check mr-1"></i>Copied All';
+      btn.classList.add('bg-green-100', 'text-green-700');
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.classList.remove('bg-green-100', 'text-green-700');
+      }, 2000);
+    });
+  }
+
+  function toggleFocusMode() {
+    focusMode = !focusMode;
+    const container = document.getElementById('workflowContainer');
+    const btn = document.getElementById('focusModeBtn');
+
+    if (!container || !btn) return;
+
+    if (focusMode) {
+      container.classList.add('focus-mode');
+      btn.innerHTML = '<i class="fas fa-expand-arrows-alt mr-1"></i>Normal Mode';
+
+      const workflowIds = ['1', '2', '3', '4', '5', '2a', '2b', '3a', '3b'];
+      workflowIds.forEach(workflowId => {
+        const card = document.getElementById('workflow-' + workflowId);
+        if (!card) return;
+
+        const body = document.getElementById('body-' + workflowId);
+        const icon = document.getElementById('icon-' + workflowId);
+        if (!body || !icon) return;
+
+        if (workflowId === String(expandedCard)) {
+          body.classList.remove('hidden');
+          icon.classList.remove('fa-chevron-down');
+          icon.classList.add('fa-chevron-up');
+          card.classList.add('expanded');
+        } else {
+          body.classList.add('hidden');
+          icon.classList.remove('fa-chevron-up');
+          icon.classList.add('fa-chevron-down');
+          card.classList.remove('expanded');
+        }
+      });
+    } else {
+      container.classList.remove('focus-mode');
+      btn.innerHTML = '<i class="fas fa-compress-arrows-alt mr-1"></i>Focus Mode';
+    }
+  }
+
+  // Search functionality
+  document.getElementById('searchInput')?.addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const cards = document.querySelectorAll('.workflow-card');
+
+    if (searchTerm === '') {
+      cards.forEach(card => {
+        card.style.display = '';
+        card.querySelectorAll('.search-highlight').forEach(el => {
+          const parent = el.parentNode;
+          parent.replaceChild(document.createTextNode(el.textContent), el);
+          parent.normalize();
+        });
+      });
+      return;
+    }
+
+    cards.forEach(card => {
+      const text = card.innerText.toLowerCase();
+      if (text.includes(searchTerm)) {
+        card.style.display = '';
+        highlightText(card, searchTerm);
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  });
+
+  function highlightText(element, searchTerm) {
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+
+    const textNodes = [];
+    let node;
+    while (node = walker.nextNode()) {
+      if (node.textContent.toLowerCase().includes(searchTerm)) {
+        textNodes.push(node);
+      }
+    }
+
+    textNodes.forEach(textNode => {
+      const parent = textNode.parentNode;
+      const text = textNode.textContent;
+      const regex = new RegExp(`(${searchTerm})`, 'gi');
+      const highlighted = text.replace(regex, '<span class="search-highlight">$1</span>');
+      const wrapper = document.createElement('span');
+      wrapper.innerHTML = highlighted;
+      parent.replaceChild(wrapper, textNode);
+     });
+   }
+
+   // Side Navigation functionality
+   function initSideNav() {
+     const sideNav = document.getElementById('sideNav');
+     const navItems = sideNav?.querySelectorAll('.side-nav-item');
+     
+     if (!navItems) return;
+
+     // Handle click on nav items
+     navItems.forEach(item => {
+       item.addEventListener('click', function(e) {
+         e.preventDefault();
+         const workflowId = this.getAttribute('data-workflow');
+         
+         // Try to find workflow in current active tab
+         let target = null;
+         if (currentTab === 'cheat-sheet') {
+           target = document.getElementById('workflow-' + workflowId);
+         } else if (currentTab === 'sales-pitch') {
+           // Sales pitch workflows use pitch-workflow- prefix
+           // They're inside salesPitchContainer
+           const salesPitchContainer = document.getElementById('salesPitchContainer');
+           if (salesPitchContainer) {
+             target = salesPitchContainer.querySelector('#pitch-workflow-' + workflowId);
+           }
+           // Fallback to direct ID search
+           if (!target) {
+             target = document.getElementById('pitch-workflow-' + workflowId);
+           }
+         }
+         
+         if (target) {
+           // Update active state
+           navItems.forEach(nav => nav.classList.remove('active'));
+           this.classList.add('active');
+           
+           // Calculate scroll position more reliably
+           const header = document.querySelector('.header');
+           const headerHeight = header ? header.offsetHeight + 20 : 120;
+           
+           // Get the element's position relative to the document
+           let elementTop = 0;
+           let element = target;
+           while (element) {
+             elementTop += element.offsetTop;
+             element = element.offsetParent;
+           }
+           
+           // Scroll to position accounting for header
+           window.scrollTo({
+             top: elementTop - headerHeight,
+             behavior: 'smooth'
+           });
+         }
+       });
+     });
+
+     // Update active nav item on scroll
+     function updateActiveNav() {
+       const scrollPos = window.pageYOffset + 200; // Offset for header
+       const activeTab = currentTab === 'cheat-sheet' ? 'cheat-sheet' : 'sales-pitch';
+       const container = document.getElementById(activeTab);
+       
+       if (!container) return;
+       
+       // For sales-pitch tab, workflows might be in salesPitchContainer
+       let workflows = container.querySelectorAll('.workflow-card');
+       if (workflows.length === 0 && activeTab === 'sales-pitch') {
+         const salesPitchContainer = document.getElementById('salesPitchContainer');
+         if (salesPitchContainer) {
+           workflows = salesPitchContainer.querySelectorAll('.workflow-card');
+         }
+       }
+       
+       // Calculate positions relative to document
+       workflows.forEach((workflow) => {
+         let workflowTop = 0;
+         let element = workflow;
+         while (element) {
+           workflowTop += element.offsetTop;
+           element = element.offsetParent;
+         }
+         const workflowBottom = workflowTop + workflow.offsetHeight;
+         
+         // Extract workflow ID - handle both formats
+         let workflowId = '';
+         if (workflow.id.startsWith('pitch-workflow-')) {
+           workflowId = workflow.id.replace('pitch-workflow-', '');
+         } else if (workflow.id.startsWith('workflow-')) {
+           workflowId = workflow.id.replace('workflow-', '');
+         }
+         
+         if (workflowId && scrollPos >= workflowTop && scrollPos < workflowBottom) {
+           navItems.forEach(nav => {
+             nav.classList.remove('active');
+             if (nav.getAttribute('data-workflow') === workflowId) {
+               nav.classList.add('active');
+             }
+           });
+         }
+       });
+     }
+
+     // Throttle scroll events
+     let ticking = false;
+     window.addEventListener('scroll', function() {
+       if (!ticking) {
+         window.requestAnimationFrame(function() {
+           updateActiveNav();
+           ticking = false;
+         });
+         ticking = true;
+       }
+     });
+
+     // Store updateActiveNav globally so switchTab can call it
+     window.updateActiveNav = updateActiveNav;
+
+     // Initial active state
+     setTimeout(updateActiveNav, 300);
+   }
+
+   // Initialize side nav when DOM is ready
+   document.addEventListener('DOMContentLoaded', function() {
+     setTimeout(function() {
+       initSideNav();
+       // Set initial labels based on default tab
+       updateSideNavLabels(currentTab);
+     }, 100);
+   });
+ </script>
+ {% endblock %}

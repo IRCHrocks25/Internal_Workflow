@@ -1,4 +1,7 @@
-from django.http import HttpResponse
+from django.shortcuts import render
 
 def home(request):
-    return HttpResponse("Hello, world! This is myApp inside myProject 🚀")
+    return render(request, 'cheat_sheet.html')
+
+def sales_pitch(request):
+    return render(request, 'sales_pitch.html')
